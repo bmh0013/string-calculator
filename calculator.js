@@ -3,9 +3,9 @@ function calculate(string) {
   if (hasInputErrors(string)) {
     throw new Error("String contains characters that are not parseable");
   }
-  // if ( hasSyntaxErrors(string) ) {
-  //   throw SyntaxError('Invalid input');
-  // }
+  if (hasSyntaxErrors(string)) {
+    throw SyntaxError("Invalid input");
+  }
 
   result = parseAddition(string);
   result = formatResult(result);
@@ -13,9 +13,40 @@ function calculate(string) {
   return result;
 }
 
-// Checks to see if any characters in the string contain letters
+// Checks if any of the characters in the string are letters
 function hasInputErrors(string) {
   return !!string.match(/[a-z]/i);
+}
+
+// Checks parentheses and operators for syntax errors
+function hasSyntaxErrors(string) {
+  debugger;
+  const parenTracker = [];
+
+  let operatorCount = 0;
+  let lastCharWasOperator = false;
+
+  for (const char of string) {
+    if (char === " ") continue;
+
+    if (char === "(") {
+      parenTracker.push("(");
+    } else if (char === ")") {
+      if (parenTracker.pop() !== "(") return true;
+    } else if ( isNaN(+char) ) {
+      if ( lastCharWasOperator ) {
+        if (char === "*" || char === "/" || char === "+") return true;
+      }
+      operatorCount++;
+      lastCharWasOperator = true;
+      if ( operatorCount === 3 ) return true;
+    } else {
+      operatorCount = 0;
+      lastCharWasOperator = false;
+    }
+  }
+
+  return parenTracker.length !== 0;
 }
 
 // Splits the string based on the operator but keeps parentheses grouped
@@ -35,7 +66,7 @@ function split(expression, operator) {
     if (char === operator && bracketCount === 0 && strSlice.length) {
       // Deals with negative numbers instead of splitting the string
       let lastChar = strSlice.substr(-1);
-      if (operator === "-" && (lastChar === "*" || lastChar === "/" || lastChar === "+")) {
+      if ( operator === "-" && (lastChar === "*" || lastChar === "/" || lastChar === "+") ) {
         strSlice += char;
       } else {
         split.push(strSlice);
@@ -132,7 +163,7 @@ function parseParentheses(string) {
 function formatResult(num) {
   num = num.toString();
 
-  let start = num.indexOf('.');
+  let start = num.indexOf(".");
   if (start === -1) return +num;
 
   let repeatNum = num[start];
@@ -152,5 +183,7 @@ function formatResult(num) {
   }
   return +num;
 }
+
+console.log(calculate("(4-2)*3.5"));
 
 module.exports = { calculate };

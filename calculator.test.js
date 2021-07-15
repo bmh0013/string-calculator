@@ -4,6 +4,14 @@ test('should throw an error if called without a number', () => {
   expect(() => calculate('19 + cinnamon')).toThrow("String contains characters that are not parseable");
 });
 
+test('should throw syntax error', () => {
+  expect(() => calculate('2+-+-4')).toThrow("Invalid input");
+});
+
+test('should throw syntax error', () => {
+  expect(() => calculate('( 2 + 4 - (2 * 4)')).toThrow("Invalid input");
+});
+
 test('1+2 = 3', () => {
   expect( calculate('1 + 2') ).toBe(3);
 });
