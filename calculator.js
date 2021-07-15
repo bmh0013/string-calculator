@@ -18,7 +18,7 @@ function hasInputErrors(string) {
   return !!string.match(/[a-z]/i);
 }
 
-// Splits the string into groups based on the operator or if inside parentheses
+// Splits the string based on the operator but keeps parentheses grouped
 function split(expression, operator) {
   let split = [];
 
@@ -29,20 +29,13 @@ function split(expression, operator) {
     const char = expression[i];
     if (char === " ") continue;
 
-    if (char === "(") {
-      strSlice += char;
-      bracketCount++;
-    } else if (char === ")") {
-      strSlice += char;
-      bracketCount--;
-    } else if (char === operator && bracketCount === 0 && strSlice.length) {
-      // This deals with negative numbers instead of splitting the string
-      if (
-        operator === "-" &&
-        (strSlice.substr(-1) === "*" ||
-          strSlice.substr(-1) === "/" ||
-          strSlice.substr(-1) === "+")
-      ) {
+    if (char === "(") bracketCount++;
+    if (char === ")") bracketCount--;
+
+    if (char === operator && bracketCount === 0 && strSlice.length) {
+      // Deals with negative numbers instead of splitting the string
+      let lastChar = strSlice.substr(-1);
+      if (operator === "-" && (lastChar === "*" || lastChar === "/" || lastChar === "+")) {
         strSlice += char;
       } else {
         split.push(strSlice);
@@ -53,18 +46,15 @@ function split(expression, operator) {
     }
   }
 
-  if (strSlice.length) {
-    split.push(strSlice);
-  }
-
+  if (strSlice.length) split.push(strSlice);
   return split;
 }
 
 function parseAddition(string) {
-  debugger;
-  let addArray = split(string, "+");
+  let addNums = split(string, "+");
 
-  addArray = addArray.map((exp) => {
+  addNums = addNums.map((exp) => {
+    // Check if the expression is a number or needs to be parsed further
     if (+exp) {
       return +exp;
     } else {
@@ -72,86 +62,90 @@ function parseAddition(string) {
     }
   });
 
-  return addArray.length ? addArray.reduce((a, b) => a + b) : addArray;
+  return addNums.reduce((a, b) => a + b);
 }
 
 function parseSubtraction(string) {
-  debugger;
-  let subArray = split(string, "-");
-  subArray = subArray.map((exp) => {
+  let subtractNums = split(string, "-");
+
+  subtractNums = subtractNums.map((exp) => {
     if (+exp) {
       return +exp;
     } else {
       return parseMultiplication(exp);
     }
   });
-  return subArray.length ? subArray.reduce((a, b) => a - b) : subArray;
+
+  return subtractNums.reduce((a, b) => a - b);
 }
 
 function parseMultiplication(string) {
-  debugger;
-  let multArray = split(string, "*");
-  multArray = multArray.map((exp) => {
+  let multiplyNums = split(string, "*");
+
+  multiplyNums = multiplyNums.map((exp) => {
     if (+exp) {
       return +exp;
     } else {
       return parseDivision(exp);
     }
   });
-  return multArray.length ? multArray.reduce((a, b) => a * b) : multArray;
+
+  return multiplyNums.reduce((a, b) => a * b);
 }
 
 function parseDivision(string) {
-  debugger;
-  let divArray = split(string, "/");
-  divArray = divArray.map((exp) => {
+  let divideNums = split(string, "/");
+
+  divideNums = divideNums.map((exp) => {
     if (+exp) {
       return +exp;
     } else {
       return parseParentheses(exp);
     }
   });
-  return divArray.length ? divArray.reduce((a, b) => a / b) : divArray;
+
+  return divideNums.reduce((a, b) => a / b);
 }
 
+// Removes the first opening and closing parenthesis while checking for negative values
 function parseParentheses(string) {
-  debugger;
-  let negative;
+  let negative = false;
   let exp = string.split("");
 
-  for (let i = 0; i < exp.length; i++) {
-    if (exp[0] === "-") {
-      negative = true;
-      exp.splice(i, 1);
-    }
-    if (exp[i] === "(") {
-      exp.splice(i, 1);
-      break;
-    }
+  if (exp[0] === "-") {
+    negative = true;
+    exp.splice(0, 1);
   }
-  for (let i = exp.length - 1; i > 0; i--) {
-    if (exp[i] === ")") {
-      exp.splice(i, 1);
-      break;
-    }
+  if (exp[0] === "(") {
+    exp.splice(0, 1);
   }
+  if (exp[exp.length - 1] === ")") {
+    exp.splice(-1);
+  }
+
   exp = exp.join("");
 
-  return negative ? "-" + parseAddition(exp) : parseAddition(exp);
+  return negative ? Number("-" + parseAddition(exp)) : parseAddition(exp);
 }
 
+// Removes repeating numbers up to 2 decimal places after 3 repeating nums
 function formatResult(num) {
   num = num.toString();
 
-  let repeatNum = num[0];
-  let count = 1;
-  for (let i = 1; i < num.length; i++) {
+  let start = num.indexOf('.');
+  if (start === -1) return +num;
+
+  let repeatNum = num[start];
+  let count = 0;
+
+  for (let i = start; i < num.length; i++) {
     if (num[i] === repeatNum) {
       count++;
       if (count === 3) {
-        return +num.substr(0, num.length - i);
+        return +num.slice(0, start + 2);
       }
     } else {
+      start = i;
       repeatNum = num[i];
       count = 1;
     }

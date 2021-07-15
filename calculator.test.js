@@ -145,9 +145,9 @@ test('0.95 * 54.4 = 51.68', () => {
   expect( calculate('0.95 * 54.4') ).toBe(51.68);
 });
 
-// test('', () => {
-//   expect( calculate('') ).toBe();
-// });
+test('1 / 3 + 33333', () => {
+  expect( calculate('1 / 3 + 33333') ).toBe(33333.33);
+});
 
 // test('', () => {
 //   expect( calculate('') ).toBe();
