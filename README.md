@@ -1,6 +1,6 @@
 # string-calculator
 
-Takes in a basic math equation as a string and returns its value as a number. 
+Takes in a basic math equation as a string and returns its value as a number.<br/>
 Can only process numbers and these special characters [ +, -, *, /, (, ) ]
 
 ## Setup
