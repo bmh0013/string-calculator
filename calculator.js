@@ -1,16 +1,20 @@
 // Accepts a string and returns the calculated value
 function calculate(string) {
+  string = string.replace(/\s+/g, '');
+
   if (hasInputErrors(string)) {
     throw new Error("String contains characters that are not parseable");
   }
   if (hasSyntaxErrors(string)) {
-    throw SyntaxError("Invalid input");
+    throw SyntaxError("Invalid input.");
+  }
+  if (hasDecimalErrors(string)) {
+    throw SyntaxError("Invalid input. Check string for decimal places for errors");
   }
 
   result = parseAddition(string);
-  result = formatResult(result);
 
-  return result;
+  return formatResult(result);
 }
 
 // Checks if any of the characters in the string are letters
@@ -21,18 +25,15 @@ function hasInputErrors(string) {
 // Checks parentheses and operators for syntax errors
 function hasSyntaxErrors(string) {
   const parenTracker = [];
-
   let operatorCount = 0;
   let lastCharWasOperator = false;
 
   for (const char of string) {
-    if (char === " ") continue;
-
     if (char === "(") {
       parenTracker.push("(");
     } else if (char === ")") {
       if (parenTracker.pop() !== "(") return true;
-    } else if ( isNaN(+char) ) {
+    } else if ( isNaN(+char) && char !== '.' ) {
       if ( lastCharWasOperator ) {
         if (char === "*" || char === "/" || char === "+") return true;
       }
@@ -48,6 +49,36 @@ function hasSyntaxErrors(string) {
   return parenTracker.length !== 0;
 }
 
+// Decimals have lots of special cases so it needs its own function check
+function hasDecimalErrors(string) {
+  if (string[0] === '.' && isNaN(+string[1]) ) return true;
+
+  let decimalCount = 0;
+
+  for (let i = 0; i < string.length; i++) {
+    let char = string[i];
+
+    if ( char === '(' && decimalCount) {
+      return true;
+    } else if (char === '+' || char === '-' || char === '*' || char === '/') {
+      decimalCount = 0;
+    } else if (char === '.') {
+      if (i >= 1) {
+        // Decimal needs to have a number on at least one side
+        if ( isNaN(+string[i-1]) && isNaN(+string[i+1]) ) {
+          return true;
+        }
+      }
+
+      decimalCount++;
+    }
+
+    if (decimalCount === 2) return true;
+  }
+
+  return false;
+}
+
 // Splits the string based on the operator but keeps parentheses grouped
 function split(expression, operator) {
   let split = [];
@@ -57,7 +88,6 @@ function split(expression, operator) {
   let bracketCount = 0;
   for (let i = 0; i < expression.length; i++) {
     const char = expression[i];
-    if (char === " ") continue;
 
     if (char === "(") bracketCount++;
     if (char === ")") bracketCount--;

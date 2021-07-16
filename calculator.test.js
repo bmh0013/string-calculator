@@ -1,21 +1,55 @@
 const { calculate } = require("./calculator.js");
 
 test("should throw an error if called without a number", () => {
-  expect(() => calculate("19 + cinnamon")).toThrow(
-    "String contains characters that are not parseable"
-  );
+  expect(() => calculate("19 + cinnamon")).toThrow("String contains characters that are not parseable");
 });
 
 test("should throw syntax error", () => {
-  expect(() => calculate("2+-+-4")).toThrow("Invalid input");
+  expect(() => calculate("2+-+-4")).toThrow("Invalid input.");
 });
 
 test("should throw syntax error", () => {
-  expect(() => calculate("( 2 + 4 - (2 * 4)")).toThrow("Invalid input");
+  expect(() => calculate("2----4")).toThrow("Invalid input.");
 });
 
 test("should throw syntax error", () => {
-  expect(() => calculate("( 2 + 4 - (2 * 4)")).toThrow("Invalid input");
+  expect(() => calculate("(2 + 4 - (2 * 4)")).toThrow("Invalid input.");
+});
+
+test("should throw syntax error", () => {
+  expect(() => calculate("( (2) + ((4)) - (2 * (4))))")).toThrow("Invalid input.");
+});
+
+test("should throw syntax error", () => {
+  expect(() => calculate("2.2.2 + 4")).toThrow("Invalid input. Check string for decimal places for errors");
+});
+
+test("should throw syntax error", () => {
+  expect(() => calculate("2 - .(1 + 4)")).toThrow("Invalid input. Check string for decimal places for errors");
+});
+
+test("should throw syntax error", () => {
+  expect(() => calculate("4 + .1. * 2")).toThrow("Invalid input. Check string for decimal places for errors");
+});
+
+test("should throw syntax error", () => {
+  expect(() => calculate(".+ 3 - 1")).toThrow("Invalid input. Check string for decimal places for errors");
+});
+
+test("should throw syntax error", () => {
+  expect(() => calculate("(1. + .1 + .)")).toThrow("Invalid input. Check string for decimal places for errors");
+});
+
+test("( (2) + ((4)) - (2 * (4)) ) = -2", () => {
+  expect(calculate("( (2) + ((4)) - (2 * (4)) )")).toBe(-2);
+});
+
+test("2. - (1 + 4) = -3", () => {
+  expect(calculate("2. - (1 + 4)")).toBe(-3);
+});
+
+test("(1. + .1) + 1 = 2.1", () => {
+  expect( calculate("(1. + .1) + 1") ).toBe(2.1);
 });
 
 test("1+2 = 3", () => {
