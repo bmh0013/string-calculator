@@ -20,7 +20,6 @@ function hasInputErrors(string) {
 
 // Checks parentheses and operators for syntax errors
 function hasSyntaxErrors(string) {
-  debugger;
   const parenTracker = [];
 
   let operatorCount = 0;
@@ -183,7 +182,5 @@ function formatResult(num) {
   }
   return +num;
 }
-
-console.log(calculate("(4-2)*3.5"));
 
 module.exports = { calculate };
