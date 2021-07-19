@@ -9,4 +9,10 @@ To run this file, download it locally using git:
 git clone https://github.com/bmh0013/string-calculator.git
 ```
 
+This file comes with Jest tests that can be ran using these commands after navigating into the project folder via terminal:
+```
+npm install
+npm test
+```
+
 Copy calculate.js to your project folder and import the Calculate function into your file.
