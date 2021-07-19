@@ -12,7 +12,7 @@ function calculate(string) {
     throw SyntaxError("Invalid input. Check string for decimal places for errors");
   }
 
-  result = parseAddition(string);
+  const result = parseAddition(string);
 
   return formatResult(result);
 }
